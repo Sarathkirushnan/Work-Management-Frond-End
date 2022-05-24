@@ -1,13 +1,13 @@
-![preview](public/static/preview/login.png)
-![preview](public/static/preview/Register.png)
-![preview](public/static/preview/profile.png)
-![preview](public/static/preview/Work.png)
-![preview](public/static/preview/WorkJob.png)
-![preview](public/static/preview/AddWorkAndJob.png)
-![preview](public/static/preview/WorkingDays.png)
-![preview](public/static/preview/AddWorkingDay.png)
-![preview](public/static/preview/estimationTable.png)
-![preview](public/static/preview/Estimate.png)
+![preview](public/static/login.png)
+![preview](public/static/Register.png)
+![preview](public/static/profile.png)
+![preview](public/static/Work.png)
+![preview](public/static/WorkJob.png)
+![preview](public/static/AddWorkAndJob.png)
+![preview](public/static/WorkingDays.png)
+![preview](public/static/AddWorkingDay.png)
+![preview](public/static/estimationTable.png)
+![preview](public/static/Estimate.png)
 |
 
 ## Page demo
