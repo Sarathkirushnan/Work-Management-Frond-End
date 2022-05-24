@@ -1,40 +1,34 @@
-## Minimal [(Free version)](https://minimal-kit-react.vercel.app/)
-
-![license](https://img.shields.io/badge/license-MIT-blue.svg)
-
-> Free React Admin Dashboard made with Material-UI components and React.
-
-![preview](public/static/preview.jpg)
-
-| [Minimal Free](https://minimal-kit-react.vercel.app/) | [Minimal](https://material-ui.com/store/items/minimal-dashboard/) |
-| ----------------------------------------------------- | :---------------------------------------------------------------- |
-| **7** Demo pages                                      | **42+** demo pages                                                |
-| -                                                     | ✓ Multi-language                                                  |
-| -                                                     | ✓ Dark/Light Mode 🌓                                              |
-| -                                                     | ✓ [More components](https://minimals.cc/components)               |
-| -                                                     | ✓ TypeScript version                                              |
-| -                                                     | ✓ Design files (Figma & Sketch)                                   |
+![preview](public/static/preview/login.png)
+![preview](public/static/preview/Register.png)
+![preview](public/static/preview/profile.png)
+![preview](public/static/preview/Work.png)
+![preview](public/static/preview/WorkJob.png)
+![preview](public/static/preview/AddWorkAndJob.png)
+![preview](public/static/preview/WorkingDays.png)
+![preview](public/static/preview/AddWorkingDay.png)
+![preview](public/static/preview/estimationTable.png)
+![preview](public/static/preview/Estimate.png)
+|
 
 ## Page demo
 
-- [Dashboard](https://minimal-kit-react.vercel.app/dashboard/app)
-- [Users](https://minimal-kit-react.vercel.app/dashboard/user)
-- [Product](https://minimal-kit-react.vercel.app/dashboard/products)
-- [Blog](https://minimal-kit-react.vercel.app/dashboard/blog)
-- [Login](https://minimal-kit-react.vercel.app/login)
-- [Register](https://minimal-kit-react.vercel.app/register)
-- [Not Found](https://minimal-kit-react.vercel.app/404)
+- [Dashboard](https://localhost/dashboard/app)
+- [User Profile](https://localhost:3000/dashboard/user)
+- [Company](https://localhost:3000/dashboard/company)
+- [Jobs and Company](https://localhost:3000/dashboard/jobcompany)
+- [Working Days](https://localhost:3000/dashboard/working-days)
+- [Today Estimate](https://localhost:3000/dashboard/work-time)
+- [Login](https://localhost:3000/login)
+- [Register](https://localhost:3000/register)
+- [Welcome](https://localhost:3000/welcome)
+- [Not Found](https://localhost:3000/404)
 
 ## Getting started
 
-- Recommended `node js 14.x` and `npm 6+`
+- Recommended `node js 14.17.3`
 - Install dependencies: `npm install` or `yarn install`
 - Start the project: `npm run start` or `yarn start`
 
-## License
-
-Distributed under the MIT License. See [LICENSE](https://github.com/minimal-ui-kit/minimal.free/blob/main/LICENSE.md) for more information.
-
 ## Contact us
 
-Email Us: support@minimals.cc
+Email Us: sarathkrishnan0321@gmail.com

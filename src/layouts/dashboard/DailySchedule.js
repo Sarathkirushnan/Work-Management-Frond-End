@@ -10,9 +10,8 @@ import WorkTime from '../../pages/WorkTime';
 
 // ----------------------------------------------------------------------
 
-export default function DailySchedule() {
+export default function DailySchedule({ setOpen }) {
 	const anchorRef = useRef(null);
-	const [open, setOpen] = useState(false);
 
 	const handleOpen = () => {
 		setOpen(true);
@@ -50,16 +49,9 @@ export default function DailySchedule() {
 						padding: 0,
 						width: 50,
 						height: 44,
-						...(open && {
-							bgcolor: (theme) =>
-								alpha(
-									theme.palette.primary.main,
-									theme.palette.action.focusOpacity
-								),
-						}),
 					}}
 					src={'/static/icons/shedul.png'}
-					alt={'English'}
+					alt={'Estimate'}
 				/>
 			</Button>
 		</>

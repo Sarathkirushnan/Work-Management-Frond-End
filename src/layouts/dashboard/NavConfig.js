@@ -31,20 +31,10 @@ const navConfig = [
 		path: '/dashboard/working-days',
 		icon: getIcon('la:calendar-day'),
 	},
-	// {
-	// 	title: 'login',
-	// 	path: '/login',
-	// 	icon: getIcon('eva:lock-fill'),
-	// },
 	{
 		title: 'Today Estimate',
 		path: '/dashboard/work-time',
 		icon: getIcon('ic:twotone-more-time'),
-	},
-	{
-		title: 'Not found',
-		path: '/404',
-		icon: getIcon('eva:alert-triangle-fill'),
 	},
 ];
 

@@ -4,12 +4,10 @@ import { Navigate, useRoutes } from 'react-router-dom';
 import DashboardLayout from './layouts/dashboard';
 import LogoOnlyLayout from './layouts/LogoOnlyLayout';
 //
-import Blog from './pages/Blog';
 import User from './pages/User';
 import Login from './pages/Login';
 import NotFound from './pages/Page404';
 import Register from './pages/Register';
-import Products from './pages/Products';
 import DashboardApp from './pages/DashboardApp';
 import Company from './pages/Company';
 import WorkingDays from './pages/WorkingDays';
@@ -21,6 +19,7 @@ import WorkTime from './pages/WorkTime';
 const localUser = JSON.parse(localStorage.getItem('user'));
 export default function Router() {
 	const [user, setUser] = useState({});
+	const [open, setOpen] = useState(false);
 	useEffect(() => {
 		setUser(JSON.parse(localStorage.getItem('user')));
 	}, [localStorage.getItem('user')]);
@@ -33,7 +32,7 @@ export default function Router() {
 			return [
 				{
 					path: '/',
-					element: <LogoOnlyLayout />,
+					element: <LogoOnlyLayout openEstimate={setOpen} />,
 					children: [
 						{ path: '/register', element: <Register /> },
 						{
@@ -56,7 +55,7 @@ export default function Router() {
 		return [
 			{
 				path: '/dashboard',
-				element: <DashboardLayout />,
+				element: <DashboardLayout openEstimate={setOpen} />,
 				children: [
 					{ path: 'app', element: <DashboardApp /> },
 					{ path: 'user', element: <User /> },
@@ -69,7 +68,7 @@ export default function Router() {
 					{ path: 'jobcompany', element: <JobAndCompany /> },
 					{
 						path: 'work-time',
-						element: <WorkTime />,
+						element: <WorkTime open={open} setOpen={setOpen} />,
 					},
 				],
 			},

@@ -52,7 +52,7 @@ export default function WorkingDays() {
 		setAddOpen(false);
 	};
 	return (
-		<Page title="Company">
+		<Page title="Working Days">
 			<Container>
 				{addOpen && (
 					<AddWorikingDays
@@ -64,7 +64,7 @@ export default function WorkingDays() {
 				)}
 				<Stack direction="row" justifyContent="space-between" mb={5}>
 					<Typography align="left" variant="h4" gutterBottom>
-						Company
+						Work Days
 					</Typography>
 					<Button
 						variant="contained"
@@ -73,7 +73,7 @@ export default function WorkingDays() {
 							setAddOpen(true);
 						}}
 					>
-						New Company
+						New Work Days
 					</Button>
 				</Stack>
 

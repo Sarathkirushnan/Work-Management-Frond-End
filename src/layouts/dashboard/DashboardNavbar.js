@@ -39,7 +39,7 @@ DashboardNavbar.propTypes = {
 	onOpenSidebar: PropTypes.func,
 };
 
-export default function DashboardNavbar({ onOpenSidebar }) {
+export default function DashboardNavbar({ onOpenSidebar, openEstimate }) {
 	return (
 		<RootStyle>
 			<ToolbarStyle>
@@ -58,7 +58,7 @@ export default function DashboardNavbar({ onOpenSidebar }) {
 					alignItems="center"
 					spacing={{ xs: 0.5, sm: 1.5 }}
 				>
-					<DailySchedule />
+					<DailySchedule setOpen={openEstimate} />
 					<AccountPopover />
 				</Stack>
 			</ToolbarStyle>
