@@ -20,25 +20,25 @@ import Box from '@mui/material/Box';
 import Backdrop from '@mui/material/Backdrop';
 // component
 import { styled } from '@mui/material/styles';
+import { NOTIFICATION_TYPE } from '../../../utils/SystemConfig';
 import Iconify from '../../../components/Iconify';
+import { addCompany, updateCompany } from './companyService';
+import CustomizedNotification from '../../../utils/CoustemNotification';
 
-const ContentStyle = styled('div')(({ theme }) => ({
-	maxWidth: 480,
-	margin: 'auto',
-	minHeight: '100vh',
-	display: 'flex',
-	justifyContent: 'center',
-	flexDirection: 'column',
-	padding: theme.spacing(12, 0),
-}));
-export default function AddCompany({ open, setClose }) {
-	const [isSubmitt, setSubmitting] = useState(false);
-	const [value, setValue] = useState({
-		name: 'hi',
-		address: '',
-		email: '',
-		contactNumber: '',
+export default function AddCompany({
+	open,
+	setClose,
+	editCompany,
+	resetList,
+	alart,
+}) {
+	const [submitt, setSubmitt] = useState(false);
+	const [company, setCompnye] = useState(editCompany);
+	const [alert, setalert] = useState({
+		type: '',
+		msg: '',
 	});
+	React.useEffect(async () => {}, []);
 	const RegisterSchema = Yup.object().shape({
 		name: Yup.string()
 			.min(2, 'Too Short!')
@@ -51,22 +51,62 @@ export default function AddCompany({ open, setClose }) {
 		email: Yup.string()
 			.email('Email must be a valid email address')
 			.required('Email is required'),
-		contactNumber: Yup.string(),
+		contactNumber: Yup.number(),
 	});
-
 	const formik = useFormik({
 		initialValues: {
-			name: '',
-			address: '',
-			email: '',
-			contactNumber: '',
+			id: company.id ? company.id : 0,
+			name: company.id ? company.name : '',
+			address: company.id ? company.address : '',
+			email: company.id ? company.email : '',
+			contactNumber: company.id ? company.contactNumber : undefined,
 		},
 		validationSchema: RegisterSchema,
-		onSubmit: (e) => {
-			console.log({ e });
-			setClose(true);
+		onSubmit: (data) => {
+			if (data.id) {
+				updateCompany(data).then(
+					(data) => {
+						alart({
+							type: NOTIFICATION_TYPE.success,
+							msg: data.massage,
+						});
+						onReset();
+						resetList();
+					},
+					(error) => {
+						setalert({
+							type: NOTIFICATION_TYPE.error,
+							msg: error.data.massage,
+						});
+					}
+				);
+			} else {
+				addCompany(data).then(
+					(data) => {
+						alart({
+							type: NOTIFICATION_TYPE.success,
+							msg: data.massage,
+						});
+						onReset();
+						resetList();
+					},
+					(error) => {
+						setalert({
+							type: NOTIFICATION_TYPE.error,
+							msg: error.data.massage,
+						});
+					}
+				);
+			}
 		},
 	});
+
+	const handleAlertClose = () => {
+		setalert({
+			type: '',
+			msg: '',
+		});
+	};
 	const {
 		errors,
 		touched,
@@ -75,22 +115,16 @@ export default function AddCompany({ open, setClose }) {
 		getFieldProps,
 		resetForm,
 	} = formik;
-	const onReset = () => {};
+	const onReset = () => {
+		setClose(true);
+		resetForm();
+	};
 	return (
 		<div>
 			<Modal
 				keepMounted
 				open={open}
-				onClose={() => {
-					resetForm({
-						name: '',
-						address: '',
-						email: '',
-						contactNumber: '',
-					});
-					setClose();
-					onReset();
-				}}
+				onClose={onReset}
 				closeAfterTransition
 				BackdropComponent={Backdrop}
 			>
@@ -108,7 +142,10 @@ export default function AddCompany({ open, setClose }) {
 					}}
 				>
 					<Card>
-						<CardHeader title={'modalTitle'} style={{ height: '70px' }} />
+						<CardHeader
+							title={company.id ? 'Edit Company' : 'Add Company'}
+							style={{ height: '70px' }}
+						/>
 
 						<Divider style={{ marginTop: '-10px' }} />
 						<CardContent
@@ -126,10 +163,17 @@ export default function AddCompany({ open, setClose }) {
 									onSubmit={handleSubmit}
 									style={{ pending: '5px' }}
 								>
+									<TextField
+										sx={{ b: 0 }}
+										type="hidden"
+										variant="standard"
+										value={company.id && company.id}
+										{...getFieldProps('id')}
+									/>
 									<Stack spacing={3}>
 										<TextField
 											fullWidth
-											value={value.name}
+											value={company.id && company.name}
 											label="Company name"
 											{...getFieldProps('name')}
 											error={Boolean(touched.name && errors.name)}
@@ -148,9 +192,11 @@ export default function AddCompany({ open, setClose }) {
 
 											<TextField
 												fullWidth
-												autoComplete="contactNumber"
+												value={formik.initialValues.contactNumber}
+												autoComplete="mobile"
 												label="Contact number"
-												{...getFieldProps('lastName')}
+												type={'number'}
+												{...getFieldProps('contactNumber')}
 												error={Boolean(
 													touched.contactNumber && errors.contactNumber
 												)}
@@ -162,7 +208,7 @@ export default function AddCompany({ open, setClose }) {
 
 										<TextField
 											fullWidth
-											value={value.address}
+											value={formik.initialValues.address}
 											autoComplete="address"
 											type={'text'}
 											label="Company address"
@@ -170,16 +216,30 @@ export default function AddCompany({ open, setClose }) {
 											error={Boolean(touched.address && errors.address)}
 											helperText={touched.address && errors.address}
 										/>
-
-										<LoadingButton
-											fullWidth
-											size="large"
-											type="submit"
-											variant="contained"
-											loading={isSubmitting}
+										<Stack
+											direction={{ xs: 'column', sm: 'row' }}
+											justifyContent="right"
+											spacing={2}
 										>
-											Register
-										</LoadingButton>
+											<LoadingButton
+												width="50px"
+												size="large"
+												color="error"
+												variant="contained"
+												onClick={onReset}
+											>
+												Close
+											</LoadingButton>
+											<LoadingButton
+												width="50px"
+												size="large"
+												type="submit"
+												variant="contained"
+												loading={submitt}
+											>
+												{company ? 'Edit' : 'Submit'}
+											</LoadingButton>
+										</Stack>
 									</Stack>
 								</Form>
 							</FormikProvider>
@@ -187,6 +247,13 @@ export default function AddCompany({ open, setClose }) {
 					</Card>
 				</Box>
 			</Modal>
+			{alert.type.length > 0 ? (
+				<CustomizedNotification
+					severity={alert.type}
+					message={alert.msg}
+					handleAlertClose={handleAlertClose}
+				/>
+			) : null}
 		</div>
 	);
 }

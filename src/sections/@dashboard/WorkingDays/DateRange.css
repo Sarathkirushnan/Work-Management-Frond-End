@@ -1,0 +1,11 @@
+
+
+@media screen and (max-width: 800px) {
+.rdrDateDisplayWrapper {
+      width: 214px;
+   }
+      .rdrMonth {
+
+         width: 238px;
+      }
+}

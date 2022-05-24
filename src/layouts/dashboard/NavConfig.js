@@ -37,9 +37,9 @@ const navConfig = [
 	// 	icon: getIcon('eva:lock-fill'),
 	// },
 	{
-		title: 'register',
-		path: '/register',
-		icon: getIcon('eva:person-add-fill'),
+		title: 'Today Estimate',
+		path: '/dashboard/work-time',
+		icon: getIcon('ic:twotone-more-time'),
 	},
 	{
 		title: 'Not found',

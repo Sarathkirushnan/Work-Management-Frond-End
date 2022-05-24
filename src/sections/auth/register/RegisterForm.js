@@ -58,8 +58,11 @@ export default function RegisterForm() {
 		validationSchema: RegisterSchema,
 		onSubmit: (data) => {
 			registerUser(data).then(
-				(res) => {
-					localStorage.setItem('me', JSON.stringify(res.data.result.employee));
+				async (res) => {
+					await localStorage.setItem(
+						'user',
+						JSON.stringify(res.data.result.employee)
+					);
 					navigate('/', { replace: true });
 					setalert({
 						type: NOTIFICATION_TYPE.success,
@@ -166,6 +169,8 @@ export default function RegisterForm() {
 						</Stack>
 						<TextField
 							fullWidth
+							multiline
+							rows={2}
 							autoComplete="address"
 							type={'text'}
 							label="Address"

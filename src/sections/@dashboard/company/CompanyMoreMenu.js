@@ -10,13 +10,45 @@ import {
 } from '@mui/material';
 // component
 import Iconify from '../../../components/Iconify';
-
+import { deleteCompany } from './companyService';
+import { NOTIFICATION_TYPE } from '../../../utils/SystemConfig';
+import CustomizedNotification from '../../../utils/CoustemNotification';
 // ----------------------------------------------------------------------
 
-export default function CompanyMoreMenu() {
+export default function CompanyMoreMenu({ company, editCompany, resetList }) {
 	const ref = useRef(null);
 	const [isOpen, setIsOpen] = useState(false);
-
+	const [alert, setalert] = useState({
+		type: '',
+		msg: '',
+	});
+	const deleteHandler = () => {
+		deleteCompany(company.id).then(
+			(data) => {
+				setalert({
+					type: NOTIFICATION_TYPE.success,
+					msg: data.massage,
+				});
+				resetList();
+			},
+			(error) => {
+				setalert({
+					type: NOTIFICATION_TYPE.error,
+					msg: error.massage,
+				});
+			}
+		);
+	};
+	const editHandler = () => {
+		editCompany();
+		setIsOpen(false);
+	};
+	const handleAlertClose = () => {
+		setalert({
+			type: '',
+			msg: '',
+		});
+	};
 	return (
 		<>
 			<IconButton ref={ref} onClick={() => setIsOpen(true)}>
@@ -33,7 +65,7 @@ export default function CompanyMoreMenu() {
 				anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
 				transformOrigin={{ vertical: 'top', horizontal: 'right' }}
 			>
-				<MenuItem sx={{ color: 'text.secondary' }}>
+				<MenuItem sx={{ color: 'text.secondary' }} onClick={deleteHandler}>
 					<ListItemIcon>
 						<Iconify icon="eva:trash-2-outline" width={24} height={24} />
 					</ListItemIcon>
@@ -44,6 +76,7 @@ export default function CompanyMoreMenu() {
 				</MenuItem>
 
 				<MenuItem
+					onClick={editHandler}
 					component={RouterLink}
 					to="#"
 					sx={{ color: 'text.secondary' }}
@@ -57,6 +90,13 @@ export default function CompanyMoreMenu() {
 					/>
 				</MenuItem>
 			</Menu>
+			{alert.type.length > 0 ? (
+				<CustomizedNotification
+					severity={alert.type}
+					message={alert.msg}
+					handleAlertClose={handleAlertClose}
+				/>
+			) : null}
 		</>
 	);
 }

@@ -57,7 +57,6 @@ const ContentStyle = styled('div')(({ theme }) => ({
 
 export default function Register() {
 	const smUp = useResponsive('up', 'sm');
-
 	const mdUp = useResponsive('up', 'md');
 
 	return (
@@ -65,14 +64,6 @@ export default function Register() {
 			<RootStyle>
 				<HeaderStyle>
 					<Logo />
-					{smUp && (
-						<Typography variant="body2" sx={{ mt: { md: -2 } }}>
-							Already have an account? {''}
-							<Link variant="subtitle2" component={RouterLink} to="/login">
-								Login
-							</Link>
-						</Typography>
-					)}
 				</HeaderStyle>
 
 				{mdUp && (
@@ -89,6 +80,14 @@ export default function Register() {
 
 				<Container>
 					<ContentStyle>
+						{smUp && (
+							<Typography variant="body2" sx={{ mt: 3, mb: 3 }}>
+								Already have an account? {''}
+								<Link variant="subtitle2" component={RouterLink} to="/login">
+									Login
+								</Link>
+							</Typography>
+						)}
 						<Typography variant="h4" gutterBottom>
 							Get started absolutely free.
 						</Typography>

@@ -27,13 +27,26 @@ import Fab from '@mui/material/Fab';
 // component
 import { styled } from '@mui/material/styles';
 import Iconify from '../../../components/Iconify';
+import { NOTIFICATION_TYPE } from '../../../utils/SystemConfig';
+import {
+	addCompanyJob,
+	checkNewJobExist,
+	getAllJobs,
+	getUnAllocatCompanys,
+} from './CompanyJobService';
+import CustomizedNotification from '../../../utils/CoustemNotification';
 
-export default function AddCompanyJobs({ open, setClose }) {
+export default function AddCompanyJobs({ open, setClose, alarts, resetList }) {
 	const [isSubmitting, setSubmitting] = useState(false);
+	const [alert, setalert] = useState({
+		type: '',
+		msg: '',
+	});
 	const [error, setError] = useState({
 		jobIds: { err: false, massge: 'Select any jop' },
 		companyId: { err: false, massge: 'Select your company' },
 		job: { err: false, massge: 'Enter the jop title' },
+		jobname: { err: false, massge: 'Name already exist' },
 	});
 	const [jobs, setJobs] = useState([]);
 	const [companys, setCompanys] = useState([]);
@@ -42,27 +55,49 @@ export default function AddCompanyJobs({ open, setClose }) {
 	const [job, setJob] = useState('');
 
 	useEffect(() => {
-		setJobs(
-			[...Array(24)].map((_, index) => ({
-				id: faker.datatype.number(),
-				title: faker.name.jobTitle(),
-			}))
-		);
-		setCompanys(
-			[...Array(24)].map((_, index) => ({
-				id: faker.datatype.number(),
-				title: faker.company.companyName(),
-			}))
-		);
+		getUnAllocatCompany();
+		getJobs();
 	}, []);
+
+	const getUnAllocatCompany = () => {
+		getUnAllocatCompanys().then(
+			(data) => {
+				// alart({
+				// 	type: NOTIFICATION_TYPE.success,
+				// 	msg: data.massage,
+				// });
+				setCompanys(data.result.workplaces);
+			},
+			(error) => {
+				setalert({
+					type: NOTIFICATION_TYPE.error,
+					msg: error.data.massage,
+				});
+			}
+		);
+	};
+	const getJobs = () => {
+		getAllJobs().then(
+			(data) => {
+				setJobs(data.result.jobs);
+			},
+			(error) => {
+				setalert({
+					type: NOTIFICATION_TYPE.error,
+					msg: error.data.massage,
+				});
+			}
+		);
+	};
 
 	const onReset = () => {
 		setError({
-			...error,
-			companyId: { err: false, massge: error.companyId.massge },
-			jobIds: { err: false, massge: error.jobIds.massge },
+			jobIds: { err: false, massge: 'Select any jop' },
+			companyId: { err: false, massge: 'Select your company' },
+			job: { err: false, massge: 'Enter the jop title' },
+			jobname: { err: false, massge: 'Name already exist' },
 		});
-		setSelectCompany();
+		setSelectCompany(null);
 		setSelectJobs([]);
 	};
 	const handleSubmit = (e) => {
@@ -77,21 +112,58 @@ export default function AddCompanyJobs({ open, setClose }) {
 			setError({ ...error, jobIds: { ...error.jobIds, err: true } });
 		}
 		if (selectCompany && selectJobs.length > 0) {
-			onReset();
-			setClose();
+			saveCompanyJobs({ workplaceId: selectCompany.id, jobs: selectJobs });
 		}
 	};
 	const handleChange = (event) => {
 		setJob(event.target.value);
+		setError({
+			...error,
+			job: { ...error.job, err: false },
+			jobname: { ...error.jobname, err: false },
+		});
 	};
 	const savaJob = () => {
 		if (job) {
-			setSelectJobs([...selectJobs, { id: 100, title: job }]);
-			setError({ ...error, job: { ...error.job, err: false } });
-			setJob('');
+			checkNewJobExist(job).then(
+				(data) => {
+					setSelectJobs([...selectJobs, { id: 0, name: job }]);
+					setError({ ...error, job: { ...error.job, err: false } });
+					setError({ ...error, jobname: { ...error.jobname, err: false } });
+					setJob('');
+				},
+				(er) => {
+					setError({ ...error, jobname: { ...error.jobname, err: true } });
+				}
+			);
 		} else {
 			setError({ ...error, job: { ...error.job, err: true } });
 		}
+	};
+	const saveCompanyJobs = (data) => {
+		addCompanyJob(data).then(
+			(data) => {
+				alarts({
+					type: NOTIFICATION_TYPE.success,
+					msg: data.massage,
+				});
+				onReset();
+				resetList();
+				setClose();
+			},
+			(error) => {
+				setalert({
+					type: NOTIFICATION_TYPE.error,
+					msg: error.data.massage,
+				});
+			}
+		);
+	};
+	const handleAlertClose = () => {
+		setalert({
+			type: '',
+			msg: '',
+		});
 	};
 	return (
 		<div>
@@ -99,8 +171,8 @@ export default function AddCompanyJobs({ open, setClose }) {
 				keepMounted
 				open={open}
 				onClose={() => {
-					setClose();
 					onReset();
+					setClose();
 				}}
 				closeAfterTransition
 				BackdropComponent={Backdrop}
@@ -142,7 +214,7 @@ export default function AddCompanyJobs({ open, setClose }) {
 										id="combo-box-demo"
 										options={companys}
 										getOptionLabel={(option) => {
-											return option.title;
+											return option.name;
 										}}
 										onChange={(e, reson, details) => {
 											if (error.companyId.err) {
@@ -174,7 +246,7 @@ export default function AddCompanyJobs({ open, setClose }) {
 										id="tags-standard"
 										options={jobs}
 										getOptionLabel={(option) => {
-											return option.title;
+											return option.name;
 										}}
 										value={selectJobs}
 										defaultValue={selectJobs}
@@ -203,7 +275,10 @@ export default function AddCompanyJobs({ open, setClose }) {
 											sx={{ m: 1, width: '25ch' }}
 											variant="outlined"
 										>
-											<InputLabel htmlFor="outlined-adornment-password">
+											<InputLabel
+												error={error.job.err || error.jobname.err}
+												htmlFor="outlined-adornment-password"
+											>
 												Add Jop to List
 											</InputLabel>
 											<OutlinedInput
@@ -212,7 +287,7 @@ export default function AddCompanyJobs({ open, setClose }) {
 												label="Add Jop to List"
 												placeholder="Job Title"
 												value={job}
-												error={error.job.err}
+												error={error.job.err || error.jobname.err}
 												onChange={handleChange}
 												endAdornment={
 													<InputAdornment position="end">
@@ -231,30 +306,55 @@ export default function AddCompanyJobs({ open, setClose }) {
 												}
 											/>
 											<FormHelperText
-												error={error.job.err}
+												error={error.job.err || error.jobname.err}
 												id="filled-weight-helper-text"
 											>
-												{error.job.err
-													? error.job.massge
-													: "If you can't find your job in the drop down create on here (Optional)"}
+												{(error.job.err && error.job.massge) ||
+													(error.jobname.err && error.jobname.massge) ||
+													"If you can't find your job in the drop down create on here (Optional)"}
 											</FormHelperText>
 										</FormControl>
 									</Typography>
-									<LoadingButton
-										fullWidth
-										size="large"
-										type="submit"
-										variant="contained"
-										loading={isSubmitting}
+									<Stack
+										direction={{ xs: 'column', sm: 'row' }}
+										justifyContent="right"
+										spacing={2}
 									>
-										Register
-									</LoadingButton>
+										<LoadingButton
+											width="50px"
+											size="large"
+											color="error"
+											variant="contained"
+											onClick={() => {
+												onReset();
+												setClose();
+											}}
+										>
+											Close
+										</LoadingButton>
+										<LoadingButton
+											width="50px"
+											size="large"
+											type="submit"
+											variant="contained"
+											loading={isSubmitting}
+										>
+											Submit
+										</LoadingButton>
+									</Stack>
 								</Stack>
 							</form>
 						</CardContent>
 					</Card>
 				</Box>
 			</Modal>
+			{alert.type.length > 0 ? (
+				<CustomizedNotification
+					severity={alert.type}
+					message={alert.msg}
+					handleAlertClose={handleAlertClose}
+				/>
+			) : null}
 		</div>
 	);
 }

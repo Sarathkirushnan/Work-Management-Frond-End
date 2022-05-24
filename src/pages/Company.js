@@ -1,6 +1,6 @@
 import { filter } from 'lodash';
 import { sentenceCase } from 'change-case';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 // material
 import {
@@ -30,7 +30,9 @@ import Label from '../components/Label';
 import Scrollbar from '../components/Scrollbar';
 import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound'; // mock
-import COMPANYLIST from '../_mock/company';
+import { getAllCompany } from '../sections/@dashboard/company/companyService';
+import { NOTIFICATION_TYPE } from '../utils/SystemConfig';
+import CustomizedNotification from '../utils/CoustemNotification';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -76,19 +78,36 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function Company() {
+	const [alert, setalert] = useState({
+		type: '',
+		msg: '',
+	});
 	const [page, setPage] = useState(0);
-
 	const [order, setOrder] = useState('asc');
-
 	const [selected, setSelected] = useState([]);
-
 	const [orderBy, setOrderBy] = useState('name');
-
 	const [filterName, setFilterName] = useState('');
-
 	const [rowsPerPage, setRowsPerPage] = useState(5);
 	const [addOpen, setAddOpen] = useState(false);
+	const [editCompany, setEditCompany] = useState();
+	const [COMPANYLIST, setCompanyList] = useState([]);
+	useEffect(() => {
+		getCompany();
+	}, []);
 
+	const getCompany = () => {
+		getAllCompany().then(
+			(data) => {
+				setCompanyList(data.result.workplaces);
+			},
+			(error) => {
+				setalert({
+					type: NOTIFICATION_TYPE.error,
+					msg: error.massage,
+				});
+			}
+		);
+	};
 	const handleRequestSort = (event, property) => {
 		const isAsc = orderBy === property && order === 'asc';
 		setOrder(isAsc ? 'desc' : 'asc');
@@ -145,17 +164,29 @@ export default function Company() {
 	);
 
 	const isUserNotFound = filteredUsers.length === 0;
-
+	const handleAlertClose = () => {
+		setalert({
+			type: '',
+			msg: '',
+		});
+	};
 	return (
 		<Page title="Company">
 			<Container>
-				<AddCompany
-					open={addOpen}
-					setClose={() => {
-						console.log('hii');
-						setAddOpen(false);
-					}}
-				/>
+				{addOpen && (
+					<AddCompany
+						open={addOpen}
+						editCompany={editCompany}
+						setClose={() => {
+							setAddOpen(!addOpen);
+							if (addOpen) setEditCompany();
+						}}
+						resetList={getCompany}
+						alart={(alart) => {
+							setalert(alart);
+						}}
+					/>
+				)}
 				<Stack direction="row" justifyContent="space-between" mb={5}>
 					<Typography align="left" variant="h4" gutterBottom>
 						Company
@@ -163,7 +194,8 @@ export default function Company() {
 					<Button
 						variant="contained"
 						startIcon={<Iconify icon="eva:plus-fill" />}
-						onClick={() => {
+						onClick={async () => {
+							await setEditCompany({});
 							setAddOpen(true);
 						}}
 					>
@@ -227,7 +259,14 @@ export default function Company() {
 													<TableCell align="left">{contactNumber}</TableCell>
 													<TableCell align="left">{email}</TableCell>
 													<TableCell align="right">
-														<CompanyMoreMenu />
+														<CompanyMoreMenu
+															editCompany={async () => {
+																await setEditCompany(row);
+																setAddOpen(true);
+															}}
+															company={row}
+															resetList={getCompany}
+														/>
 													</TableCell>
 												</TableRow>
 											);
@@ -263,6 +302,13 @@ export default function Company() {
 					/>
 				</Card>
 			</Container>
+			{alert.type.length > 0 ? (
+				<CustomizedNotification
+					severity={alert.type}
+					message={alert.msg}
+					handleAlertClose={handleAlertClose}
+				/>
+			) : null}
 		</Page>
 	);
 }

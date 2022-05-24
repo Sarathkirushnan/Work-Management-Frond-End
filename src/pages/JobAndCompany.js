@@ -1,7 +1,5 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 // material
 import {
 	Box,
@@ -12,9 +10,7 @@ import {
 	Card,
 	Table,
 	Stack,
-	Avatar,
 	Button,
-	Checkbox,
 	TableRow,
 	TableBody,
 	TableCell,
@@ -24,26 +20,27 @@ import {
 	TablePagination,
 } from '@mui/material';
 // components
-import { AddCompanyJobs, AddJobs } from '../sections/@dashboard/companyJobs';
+import { AddCompanyJobs } from '../sections/@dashboard/companyJobs';
 import Page from '../components/Page';
-import Label from '../components/Label';
 import Scrollbar from '../components/Scrollbar';
 import Iconify from '../components/Iconify';
 import SearchNotFound from '../components/SearchNotFound'; // mock
-import COMPANYLIST from '../_mock/company';
+import CustomizedNotification from '../utils/CoustemNotification';
+import { getAllCompanyAndJobs } from '../sections/@dashboard/companyJobs/CompanyJobService';
+import { NOTIFICATION_TYPE } from '../utils/SystemConfig';
 // ----------------------------------------------------------------------
 
 function createData(compName, contNumber, fat, carbs) {
 	return {
-		companyName: compName,
+		name: compName,
 		contactNumber: contNumber,
 		jobs: [
 			{
-				jobId: 1,
+				id: 1,
 				name: '11091700',
 			},
 			{
-				jobId: 2,
+				id: 2,
 				name: 'Anonymous',
 			},
 		],
@@ -71,7 +68,7 @@ function Row(props) {
 					</IconButton>
 				</TableCell>
 				<TableCell component="th" scope="row">
-					{row.companyName}
+					{row.name}
 				</TableCell>
 				<TableCell align="right">{row.contactNumber}</TableCell>
 				<TableCell align="right">
@@ -108,7 +105,7 @@ function Row(props) {
 								</TableHead>
 								<TableBody>
 									{row.jobs.map((jobRow) => (
-										<TableRow key={jobRow.jobId}>
+										<TableRow key={jobRow.id}>
 											<TableCell />
 											<TableCell component="th" scope="row">
 												{jobRow.name}
@@ -142,34 +139,55 @@ function descendingComparator(a, b, orderBy) {
 
 export default function JobAndCompany() {
 	const [page, setPage] = useState(0);
-
 	const [order, setOrder] = useState('asc');
-
 	const [selected, setSelected] = useState([]);
-
 	const [orderBy, setOrderBy] = useState('name');
-
 	const [filterName, setFilterName] = useState('');
-
 	const [rowsPerPage, setRowsPerPage] = useState(5);
-	const [addOpen, setAddOpen] = useState(false);
-	const rows = [
-		createData('Frozen yoghurt', 159, 6.0, '24'),
-		createData('Ice cream sandwich', 237, 9.0, '37'),
-		createData('Eclair', 262, 16.0, '24'),
-		createData('Cupcake', 305, 3.7, '67'),
-		createData('Gingerbread', 356, 16.0, '49'),
-	];
 
+	const [alert, setalert] = useState({
+		type: '',
+		msg: '',
+	});
+	const [addOpen, setAddOpen] = useState(false);
+	const [rows, setRows] = useState([]);
+	useEffect(() => {
+		getAllCompanyJobs();
+	}, []);
+	const getAllCompanyJobs = () => {
+		getAllCompanyAndJobs().then(
+			(data) => {
+				setRows(data.result.workplaceJobs);
+			},
+			(error) => {
+				setalert({
+					type: NOTIFICATION_TYPE.error,
+					msg: error.data.massage,
+				});
+			}
+		);
+	};
+	const handleAlertClose = () => {
+		setalert({
+			type: '',
+			msg: '',
+		});
+	};
 	return (
 		<Page title="Company">
 			<Container>
-				<AddCompanyJobs
-					open={addOpen}
-					setClose={() => {
-						setAddOpen(false);
-					}}
-				/>
+				{addOpen && (
+					<AddCompanyJobs
+						open={addOpen}
+						setClose={() => {
+							setAddOpen(false);
+						}}
+						alarts={(alart) => {
+							setalert(alart);
+						}}
+						resetList={getAllCompanyJobs}
+					/>
+				)}
 				<Stack direction="row" justifyContent="space-between" mb={5}>
 					<Typography align="left" variant="h4" gutterBottom>
 						Company And jobs
@@ -201,7 +219,7 @@ export default function JobAndCompany() {
 								</TableHead>
 								<TableBody>
 									{rows.map((row) => (
-										<Row key={row.companyName} row={row} />
+										<Row key={row.name} row={row} />
 									))}
 								</TableBody>
 							</Table>
@@ -218,6 +236,13 @@ export default function JobAndCompany() {
 						// onRowsPerPageChange={handleChangeRowsPerPage}
 					/> */}
 				</Card>
+				{alert.type.length > 0 ? (
+					<CustomizedNotification
+						severity={alert.type}
+						message={alert.msg}
+						handleAlertClose={handleAlertClose}
+					/>
+				) : null}
 			</Container>
 		</Page>
 	);

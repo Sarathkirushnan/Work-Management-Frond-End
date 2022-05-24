@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
@@ -13,7 +13,7 @@ import {
 	Stack,
 } from '@mui/material';
 // mock
-import account from '../../_mock/account';
+import avatar from '../../_mock/avatar';
 // hooks
 import useResponsive from '../../hooks/useResponsive';
 // components
@@ -51,15 +51,16 @@ DashboardSidebar.propTypes = {
 
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
 	const { pathname } = useLocation();
-
+	const [user, setUser] = useState({});
 	const isDesktop = useResponsive('up', 'lg');
 
 	useEffect(() => {
 		if (isOpenSidebar) {
 			onCloseSidebar();
 		}
+		setUser(JSON.parse(localStorage.getItem('user')));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [pathname]);
+	}, [pathname, localStorage.getItem('user')]);
 
 	const renderContent = (
 		<Scrollbar
@@ -84,13 +85,16 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }) {
 			<Box sx={{ mb: 5, mx: 2.5 }}>
 				<Link underline="none" component={RouterLink} to="#">
 					<AccountStyle>
-						<Avatar src={account.photoURL} alt="photoURL" />
+						<Avatar
+							src={user.gender === 'Male' ? avatar.male : avatar.female}
+							alt="photoURL"
+						/>
 						<Box sx={{ ml: 2 }}>
 							<Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-								{account.displayName}
+								{`${user.firstName} ${user.lastName}`}
 							</Typography>
 							<Typography variant="body2" sx={{ color: 'text.secondary' }}>
-								{account.role}
+								{user.country}
 							</Typography>
 						</Box>
 					</AccountStyle>
